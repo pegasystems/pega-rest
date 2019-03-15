@@ -21,6 +21,7 @@ import com.pega.rest.BasePegaMockTest;
 import com.pega.rest.CloseableMockWebServer;
 import com.pega.rest.PegaApi;
 import com.pega.rest.domain.reports.Databases;
+import com.pega.rest.domain.reports.Tables;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import org.testng.annotations.Test;
 
@@ -63,6 +64,43 @@ public class ReportsApiMockTest extends BasePegaMockTest {
                 assertThat(reference.errors().get(0).context()).isNull();
 
                 assertSent(server.getMockWebServer(), getMethod, restApiPath + API_VERSION + "/databases");
+            }
+        }
+    }
+
+    public void testGetTables() throws Exception {
+        try (final CloseableMockWebServer server = CloseableMockWebServer.start()) {
+            server.enqueue(new MockResponse().setBody(payloadFromResource("/tables.txt")).setResponseCode(200));
+
+            try (final PegaApi baseApi = api(server.getUrl("/"))) {
+                final ReportsApi api = baseApi.reportsApi();
+
+                final Tables reference = api.tables();
+                assertThat(reference).isNotNull();
+                assertThat(reference.errors()).isEmpty();
+                assertThat(reference.items()).isNotEmpty();
+                assertThat(reference.items().get(0).database()).isEqualTo("PegaDATA");
+
+                assertSent(server.getMockWebServer(), getMethod, restApiPath + API_VERSION + "/tables");
+            }
+        }
+    }
+
+    public void testGetTablesOnError() throws Exception {
+        try (final CloseableMockWebServer server = CloseableMockWebServer.start()) {
+            server.enqueue(new MockResponse().setBody(payloadFromResource(errorsNodesFile)).setResponseCode(403));
+
+            try (final PegaApi baseApi = api(server.getUrl("/"))) {
+                final ReportsApi api = baseApi.reportsApi();
+
+                final Tables reference = api.tables();
+                assertThat(reference).isNotNull();
+                assertThat(reference.items()).isEmpty();
+                assertThat(reference.errors()).isNotEmpty();
+                assertThat(reference.errors().get(0).message()).contains(errorMessage);
+                assertThat(reference.errors().get(0).context()).isNull();
+
+                assertSent(server.getMockWebServer(), getMethod, restApiPath + API_VERSION + "/tables");
             }
         }
     }

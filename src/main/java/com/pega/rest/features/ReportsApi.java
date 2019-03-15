@@ -18,9 +18,11 @@
 package com.pega.rest.features;
 
 import com.pega.rest.domain.reports.Databases;
+import com.pega.rest.domain.reports.Tables;
 import com.pega.rest.fallbacks.PegaFallbacks;
 import com.pega.rest.filters.PegaAuthenticationFilter;
 import com.pega.rest.parsers.DatabasesParser;
+import com.pega.rest.parsers.TablesParser;
 import org.jclouds.rest.annotations.Fallback;
 import org.jclouds.rest.annotations.RequestFilters;
 import org.jclouds.rest.annotations.ResponseParser;
@@ -45,4 +47,12 @@ public interface ReportsApi {
     @ResponseParser(DatabasesParser.class)
     @GET
     Databases databases();
+
+    @Named("reports:tables")
+    @Path("/tables")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Fallback(PegaFallbacks.TablesOnError.class)
+    @ResponseParser(TablesParser.class)
+    @GET
+    Tables tables();
 }

@@ -20,6 +20,8 @@ package com.pega.rest.features;
 import com.pega.rest.BasePegaApiLiveTest;
 import com.pega.rest.domain.reports.Database;
 import com.pega.rest.domain.reports.Databases;
+import com.pega.rest.domain.reports.Table;
+import com.pega.rest.domain.reports.Tables;
 import org.testng.annotations.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,10 +29,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Test(groups = "live", testName = "ReportsApiLiveTest", singleThreaded = true)
 public class ReportsApiLiveTest extends BasePegaApiLiveTest {
 
-    public String nodeId;
-
     @Test
-    public void testGetNodes() {
+    public void testGetDatabases() {
         final Databases reference = api().databases();
         assertThat(reference).isNotNull();
         assertThat(reference.errors()).isEmpty();
@@ -43,6 +43,22 @@ public class ReportsApiLiveTest extends BasePegaApiLiveTest {
             }
         }
         assertThat(foundPegaRules).isTrue();
+    }
+
+    @Test
+    public void testGetTables() {
+        final Tables reference = api().tables();
+        assertThat(reference).isNotNull();
+        assertThat(reference.errors()).isEmpty();
+        assertThat(reference.items()).isNotEmpty();
+        boolean foundPegaData = false;
+        for (final Table database : reference.items()) {
+            if (database.database().equalsIgnoreCase("PegaDATA")) {
+                foundPegaData = true;
+                break;
+            }
+        }
+        assertThat(foundPegaData).isTrue();
     }
 
     private ReportsApi api() {
