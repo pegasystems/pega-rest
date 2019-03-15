@@ -15,26 +15,14 @@
  * limitations under the License.
  */
 
-package com.pega.rest.domain.nodes;
+package com.pega.rest.domain.common;
 
-import com.google.auto.value.AutoValue;
-import com.pega.rest.PegaUtils;
-import com.pega.rest.domain.common.Error;
-import com.pega.rest.domain.common.ErrorsHolder;
-import com.pega.rest.domain.common.Items;
 import org.jclouds.javax.annotation.Nullable;
-import org.jclouds.json.SerializedNames;
 
 import java.util.List;
 
-@AutoValue
-public abstract class SystemSettings implements Items<ConfigurationSetting>, ErrorsHolder {
+public interface Items<T> {
 
-    @SerializedNames({ "configurationSettings", "error" })
-    public static SystemSettings create(final List<ConfigurationSetting> results,
-                                        @Nullable final List<Error> errors) {
-
-        return new AutoValue_SystemSettings(PegaUtils.nullToEmpty(results),
-            PegaUtils.nullToEmpty(errors));
-    }
+    @Nullable
+    List<T> items();
 }

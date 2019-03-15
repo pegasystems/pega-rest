@@ -17,20 +17,16 @@
 
 package com.pega.rest.features;
 
-import com.pega.rest.domain.nodes.Nodes;
-import com.pega.rest.domain.nodes.QuiesceStatus;
-import com.pega.rest.domain.nodes.SystemSettings;
+import com.pega.rest.domain.agents.Agents;
 import com.pega.rest.fallbacks.PegaFallbacks;
 import com.pega.rest.filters.PegaAuthenticationFilter;
 import org.jclouds.rest.annotations.Fallback;
-import org.jclouds.rest.annotations.OnlyElement;
 import org.jclouds.rest.annotations.RequestFilters;
 import org.jclouds.rest.annotations.SelectJson;
 
 import javax.inject.Named;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -40,41 +36,14 @@ import javax.ws.rs.core.MediaType;
 @RequestFilters(PegaAuthenticationFilter.class)
 @Path("/api/{jclouds.api-version}/nodes")
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
-public interface NodeApi {
+public interface AgentsApi {
 
-    @Named("nodes:nodes")
-    @SelectJson("result")
-    @OnlyElement
+    @Named("agents:agents")
+    @Path("/{nodeID}/agents")
+    @SelectJson("data")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Fallback(PegaFallbacks.NodesOnError.class)
+    @Fallback(PegaFallbacks.AgentsOnError.class)
     @GET
-    Nodes nodes();
-
-    @Named("node:settings")
-    @Path("/{nodeID}/settings/system")
-    @SelectJson("result")
-    @OnlyElement
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Fallback(PegaFallbacks.SystemSettingsOnError.class)
-    @GET
-    SystemSettings systemSettings(@PathParam("nodeID") String nodeID);
-
-    @Named("nodes:quiesce")
-    @Path("/{nodeID}/quiesce")
-    @SelectJson("result")
-    @OnlyElement
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Fallback(PegaFallbacks.QuiesceStatusOnError.class)
-    @POST
-    QuiesceStatus quiesce(@PathParam("nodeID") String nodeID);
-
-    @Named("nodes:unquiesce")
-    @Path("/{nodeID}/unquiesce")
-    @SelectJson("result")
-    @OnlyElement
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Fallback(PegaFallbacks.QuiesceStatusOnError.class)
-    @POST
-    QuiesceStatus unquiesce(@PathParam("nodeID") String nodeID);
+    Agents agents(@PathParam("nodeID") String nodeID);
 }
 

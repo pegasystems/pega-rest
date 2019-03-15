@@ -57,6 +57,10 @@ public class BasePegaMockTest {
     public static final String restApiPath = "/api/";
     public static final String forwardSlash = "/";
 
+    public static final String errorsNodesFile = "/errors-nodes.json";
+    public static final String errorMessage = "You do not have enough privileges";
+    public static final String nodeId = "9b2e3f1b6de727bf62c170617e14670b";
+
     public BasePegaMockTest() {
         provider = "pega";
     }

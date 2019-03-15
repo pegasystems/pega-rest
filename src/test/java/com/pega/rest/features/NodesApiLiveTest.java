@@ -18,6 +18,7 @@
 package com.pega.rest.features;
 
 import com.pega.rest.BasePegaApiLiveTest;
+import com.pega.rest.domain.agents.Agents;
 import com.pega.rest.domain.nodes.ClusterMember;
 import com.pega.rest.domain.nodes.Nodes;
 import com.pega.rest.domain.nodes.QuiesceStatus;
@@ -27,8 +28,8 @@ import org.testng.annotations.Test;
 import static com.pega.rest.TestUtilities.randomString;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Test(groups = "live", testName = "NodeApiLiveTest", singleThreaded = true)
-public class NodeApiLiveTest extends BasePegaApiLiveTest {
+@Test(groups = "live", testName = "NodesApiLiveTest", singleThreaded = true)
+public class NodesApiLiveTest extends BasePegaApiLiveTest {
 
     public String nodeId;
 
@@ -37,8 +38,8 @@ public class NodeApiLiveTest extends BasePegaApiLiveTest {
         final Nodes reference = api().nodes();
         assertThat(reference).isNotNull();
         assertThat(reference.errors()).isEmpty();
-        assertThat(reference.results()).isNotEmpty();
-        final ClusterMember member = reference.results().get(0);
+        assertThat(reference.items()).isNotEmpty();
+        final ClusterMember member = reference.items().get(0);
         assertThat(member.nodeType().isEmpty()).isFalse();
         if (member.runningState().equals("Quiesce Complete")) {
             api().unquiesce(member.nodeId());
@@ -52,7 +53,7 @@ public class NodeApiLiveTest extends BasePegaApiLiveTest {
         final SystemSettings reference = api().systemSettings(nodeId);
         assertThat(reference).isNotNull();
         assertThat(reference.errors()).isEmpty();
-        assertThat(reference.results()).isNotEmpty();
+        assertThat(reference.items()).isNotEmpty();
     }
 
     @Test (dependsOnMethods = "testGetSettings")
@@ -81,10 +82,10 @@ public class NodeApiLiveTest extends BasePegaApiLiveTest {
         assertThat(reference).isNotNull();
         assertThat(reference.errors()).isNotEmpty();
         assertThat(reference.errors().get(0).message()).contains("Specified NodeId is invalid");
-        assertThat(reference.results()).isEmpty();
+        assertThat(reference.items()).isEmpty();
     }
 
-    private NodeApi api() {
-        return api.nodeApi();
+    private NodesApi api() {
+        return api.nodesApi();
     }
 }

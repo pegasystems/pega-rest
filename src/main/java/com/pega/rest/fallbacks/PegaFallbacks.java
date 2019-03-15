@@ -22,6 +22,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.pega.rest.PegaUtils;
+import com.pega.rest.domain.agents.Agents;
 import com.pega.rest.domain.common.Error;
 import com.pega.rest.domain.nodes.Nodes;
 import com.pega.rest.domain.nodes.QuiesceStatus;
@@ -84,6 +85,20 @@ public final class PegaFallbacks {
         return QuiesceStatus.create(null, null, errors);
     }
 
+    public static final class AgentsOnError implements Fallback<Object> {
+        @Override
+        public Object createOrPropagate(final Throwable thr) {
+            if (checkNotNull(thr, "throwable") != null) {
+                return createAgentsOnError(getErrors(thr.getMessage()));
+            }
+            throw propagate(thr);
+        }
+    }
+
+    public static Agents createAgentsOnError(final List<Error> errors) {
+        return Agents.create(null, errors);
+    }
+
     /**
      * Parse list of Error(s) from output.
      *
@@ -109,7 +124,6 @@ public final class PegaFallbacks {
                 throw new RuntimeException(output);
             }
         } catch (final Exception e) {
-            e.printStackTrace();
             final Error error = Error.create("Failed to parse output: message=" + e.getMessage(),
                     output);
             errors.add(error);

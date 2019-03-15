@@ -15,14 +15,22 @@
  * limitations under the License.
  */
 
-package com.pega.rest.domain.common;
+package com.pega.rest.domain.nodes;
 
-import org.jclouds.javax.annotation.Nullable;
+import com.google.auto.value.AutoValue;
+import org.jclouds.json.SerializedNames;
 
-import java.util.List;
+@AutoValue
+public abstract class Status {
 
-public interface Results<T> {
+    public abstract String systemRunState();
 
-    @Nullable
-    List<T> results();
+    public abstract String activeUserCount();
+
+    @SerializedNames({ "System Run State", "Active User Count" })
+    public static Status create(final String systemRunState,
+                                final String activeUserCount) {
+
+        return new AutoValue_Status(systemRunState, activeUserCount);
+    }
 }

@@ -114,7 +114,7 @@ task integTest(type: Test) {
         }
     }
     useTestNG() 
-    include '**/**LiveTest.class'
+    include '**/AgentsApiLiveTest.class'
     testLogging {
         showStandardStreams = true
         events 'started', 'passed', 'failed'

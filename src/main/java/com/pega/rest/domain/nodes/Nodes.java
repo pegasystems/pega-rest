@@ -21,14 +21,14 @@ import com.google.auto.value.AutoValue;
 import com.pega.rest.PegaUtils;
 import com.pega.rest.domain.common.ErrorsHolder;
 import com.pega.rest.domain.common.Error;
-import com.pega.rest.domain.common.Results;
+import com.pega.rest.domain.common.Items;
 import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.json.SerializedNames;
 
 import java.util.List;
 
 @AutoValue
-public abstract class Nodes implements Results<ClusterMember>, ErrorsHolder {
+public abstract class Nodes implements Items<ClusterMember>, ErrorsHolder {
 
     @SerializedNames({ "cluster_members", "error" })
     public static Nodes create(final List<ClusterMember> results,

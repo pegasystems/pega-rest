@@ -19,11 +19,15 @@ package com.pega.rest;
 
 import java.io.Closeable;
 
-import com.pega.rest.features.NodeApi;
+import com.pega.rest.features.AgentsApi;
+import com.pega.rest.features.NodesApi;
 import org.jclouds.rest.annotations.Delegate;
 
 public interface PegaApi extends Closeable {
 
     @Delegate
-    NodeApi nodeApi();
+    AgentsApi agentsApi();
+
+    @Delegate
+    NodesApi nodesApi();
 }

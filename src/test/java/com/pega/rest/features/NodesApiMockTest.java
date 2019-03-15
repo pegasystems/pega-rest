@@ -29,26 +29,23 @@ import org.testng.annotations.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Test(groups = "unit", testName = "NodeApiMockTest")
-public class NodeApiMockTest extends BasePegaMockTest {
+@Test(groups = "unit", testName = "NodesApiMockTest")
+public class NodesApiMockTest extends BasePegaMockTest {
 
     private static final String nodesPath = "/nodes";
-    private static final String errorMessage = "You do not have enough privileges";
-    private static final String nodeId = "9b2e3f1b6de727bf62c170617e14670b";
-    private static final String errorsNodesFile = "/errors-nodes.json";
 
     public void testGetNodes() throws Exception {
         try (final CloseableMockWebServer server = CloseableMockWebServer.start()) {
             server.enqueue(new MockResponse().setBody(payloadFromResource("/nodes-get.json")).setResponseCode(200));
 
             try (final PegaApi baseApi = api(server.getUrl("/"))) {
-                final NodeApi api = baseApi.nodeApi();
+                final NodesApi api = baseApi.nodesApi();
 
                 final Nodes reference = api.nodes();
                 assertThat(reference).isNotNull();
                 assertThat(reference.errors()).isEmpty();
-                assertThat(reference.results()).isNotEmpty();
-                assertThat(reference.results().get(0).runningState()).isEqualTo("Running");
+                assertThat(reference.items()).isNotEmpty();
+                assertThat(reference.items().get(0).runningState()).isEqualTo("Running");
 
                 assertSent(server.getMockWebServer(), getMethod, restApiPath + PegaApiMetadata.API_VERSION + nodesPath);
             }
@@ -60,11 +57,11 @@ public class NodeApiMockTest extends BasePegaMockTest {
             server.enqueue(new MockResponse().setBody(payloadFromResource(errorsNodesFile)).setResponseCode(403));
 
             try (final PegaApi baseApi = api(server.getUrl("/"))) {
-                final NodeApi api = baseApi.nodeApi();
+                final NodesApi api = baseApi.nodesApi();
 
                 final Nodes reference = api.nodes();
                 assertThat(reference).isNotNull();
-                assertThat(reference.results()).isEmpty();
+                assertThat(reference.items()).isEmpty();
                 assertThat(reference.errors()).isNotEmpty();
                 assertThat(reference.errors().get(0).message()).contains(errorMessage);
                 assertThat(reference.errors().get(0).context()).isNull();
@@ -79,13 +76,13 @@ public class NodeApiMockTest extends BasePegaMockTest {
             server.enqueue(new MockResponse().setBody(payloadFromResource("/nodes-settings.json")).setResponseCode(200));
 
             try (final PegaApi baseApi = api(server.getUrl("/"))) {
-                final NodeApi api = baseApi.nodeApi();
+                final NodesApi api = baseApi.nodesApi();
 
                 final SystemSettings reference = api.systemSettings(nodeId);
                 assertThat(reference).isNotNull();
                 assertThat(reference.errors()).isEmpty();
-                assertThat(reference.results()).isNotEmpty();
-                assertThat(reference.results().get(0).name()).isEqualTo("agent/enable");
+                assertThat(reference.items()).isNotEmpty();
+                assertThat(reference.items().get(0).name()).isEqualTo("agent/enable");
 
                 assertSent(server.getMockWebServer(), getMethod, restApiPath
                         + PegaApiMetadata.API_VERSION
@@ -101,12 +98,12 @@ public class NodeApiMockTest extends BasePegaMockTest {
             server.enqueue(new MockResponse().setBody(payloadFromResource(errorsNodesFile)).setResponseCode(404));
 
             try (final PegaApi baseApi = api(server.getUrl("/"))) {
-                final NodeApi api = baseApi.nodeApi();
+                final NodesApi api = baseApi.nodesApi();
 
                 final SystemSettings reference = api.systemSettings(nodeId);
                 assertThat(reference).isNotNull();
                 assertThat(reference.errors()).isNotEmpty();
-                assertThat(reference.results()).isEmpty();
+                assertThat(reference.items()).isEmpty();
                 assertThat(reference.errors().get(0).message()).contains(errorMessage);
                 assertThat(reference.errors().get(0).context()).isNull();
 
@@ -124,7 +121,7 @@ public class NodeApiMockTest extends BasePegaMockTest {
             server.enqueue(new MockResponse().setBody(payloadFromResource("/nodes-quiesce.json")).setResponseCode(200));
 
             try (final PegaApi baseApi = api(server.getUrl("/"))) {
-                final NodeApi api = baseApi.nodeApi();
+                final NodesApi api = baseApi.nodesApi();
 
                 final QuiesceStatus reference = api.quiesce(nodeId);
                 assertThat(reference).isNotNull();
@@ -146,7 +143,7 @@ public class NodeApiMockTest extends BasePegaMockTest {
             server.enqueue(new MockResponse().setBody(payloadFromResource(errorsNodesFile)).setResponseCode(404));
 
             try (final PegaApi baseApi = api(server.getUrl("/"))) {
-                final NodeApi api = baseApi.nodeApi();
+                final NodesApi api = baseApi.nodesApi();
 
                 final QuiesceStatus reference = api.quiesce(nodeId);
                 assertThat(reference).isNotNull();
@@ -169,7 +166,7 @@ public class NodeApiMockTest extends BasePegaMockTest {
             server.enqueue(new MockResponse().setBody(payloadFromResource("/nodes-unquiesce.json")).setResponseCode(200));
 
             try (final PegaApi baseApi = api(server.getUrl("/"))) {
-                final NodeApi api = baseApi.nodeApi();
+                final NodesApi api = baseApi.nodesApi();
 
                 final QuiesceStatus reference = api.unquiesce(nodeId);
                 assertThat(reference).isNotNull();
@@ -191,7 +188,7 @@ public class NodeApiMockTest extends BasePegaMockTest {
             server.enqueue(new MockResponse().setBody(payloadFromResource(errorsNodesFile)).setResponseCode(404));
 
             try (final PegaApi baseApi = api(server.getUrl("/"))) {
-                final NodeApi api = baseApi.nodeApi();
+                final NodesApi api = baseApi.nodesApi();
 
                 final QuiesceStatus reference = api.unquiesce(nodeId);
                 assertThat(reference).isNotNull();
