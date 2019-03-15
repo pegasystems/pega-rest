@@ -23,6 +23,7 @@ import com.pega.rest.PegaApi;
 import com.pega.rest.PegaApiMetadata;
 import com.pega.rest.domain.agents.AgentInfo;
 import com.pega.rest.domain.agents.Agents;
+import com.pega.rest.domain.agents.AgentsStatus;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import org.testng.annotations.Test;
 
@@ -125,6 +126,147 @@ public class AgentsApiMockTest extends BasePegaMockTest {
                 assertThat(reference.errors().get(0).context()).isNull();
 
                 assertSent(server.getMockWebServer(), getMethod, restApiPath
+                        + PegaApiMetadata.API_VERSION
+                        + nodesPath
+                        + forwardSlash + nodeId
+                        + agentsPath
+                        + forwardSlash + agentIdEncoded);
+            }
+        }
+    }
+
+    public void testStopAgent() throws Exception {
+        try (final CloseableMockWebServer server = CloseableMockWebServer.start()) {
+            server.enqueue(new MockResponse().setBody(payloadFromResource("/agents-stop.json")).setResponseCode(200));
+
+            try (final PegaApi baseApi = api(server.getUrl("/"))) {
+                final AgentsApi api = baseApi.agentsApi();
+
+                final AgentsStatus reference = api.stop(nodeId, agentId);
+                assertThat(reference).isNotNull();
+                assertThat(reference.errors()).isEmpty();
+                assertThat(reference.items()).isNotEmpty();
+                assertThat(reference.items().get(0).message()).isEqualTo("Agent Successfully terminated");
+
+                assertSent(server.getMockWebServer(), deleteMethod, restApiPath
+                        + PegaApiMetadata.API_VERSION
+                        + nodesPath
+                        + forwardSlash + nodeId
+                        + agentsPath
+                        + forwardSlash + agentIdEncoded);
+            }
+        }
+    }
+
+    public void testStopAgentOnError() throws Exception {
+        try (final CloseableMockWebServer server = CloseableMockWebServer.start()) {
+            server.enqueue(new MockResponse().setBody(payloadFromResource(errorsNodesFile)).setResponseCode(404));
+
+            try (final PegaApi baseApi = api(server.getUrl("/"))) {
+                final AgentsApi api = baseApi.agentsApi();
+
+                final AgentsStatus reference = api.stop(nodeId, agentId);
+                assertThat(reference).isNotNull();
+                assertThat(reference.items()).isEmpty();
+                assertThat(reference.errors()).isNotEmpty();
+                assertThat(reference.errors().get(0).message()).contains(errorMessage);
+                assertThat(reference.errors().get(0).context()).isNull();
+
+                assertSent(server.getMockWebServer(), deleteMethod, restApiPath
+                        + PegaApiMetadata.API_VERSION
+                        + nodesPath
+                        + forwardSlash + nodeId
+                        + agentsPath
+                        + forwardSlash + agentIdEncoded);
+            }
+        }
+    }
+
+    public void testStartAgent() throws Exception {
+        try (final CloseableMockWebServer server = CloseableMockWebServer.start()) {
+            server.enqueue(new MockResponse().setBody(payloadFromResource("/agents-start.json")).setResponseCode(200));
+
+            try (final PegaApi baseApi = api(server.getUrl("/"))) {
+                final AgentsApi api = baseApi.agentsApi();
+
+                final AgentsStatus reference = api.start(nodeId, agentId);
+                assertThat(reference).isNotNull();
+                assertThat(reference.errors()).isEmpty();
+                assertThat(reference.items()).isNotEmpty();
+                assertThat(reference.items().get(0).message()).isEqualTo("Agent Successfully started");
+
+                assertSent(server.getMockWebServer(), postMethod, restApiPath
+                        + PegaApiMetadata.API_VERSION
+                        + nodesPath
+                        + forwardSlash + nodeId
+                        + agentsPath
+                        + forwardSlash + agentIdEncoded);
+            }
+        }
+    }
+
+    public void testStartAgentOnError() throws Exception {
+        try (final CloseableMockWebServer server = CloseableMockWebServer.start()) {
+            server.enqueue(new MockResponse().setBody(payloadFromResource(errorsNodesFile)).setResponseCode(404));
+
+            try (final PegaApi baseApi = api(server.getUrl("/"))) {
+                final AgentsApi api = baseApi.agentsApi();
+
+                final AgentsStatus reference = api.start(nodeId, agentId);
+                assertThat(reference).isNotNull();
+                assertThat(reference.items()).isEmpty();
+                assertThat(reference.errors()).isNotEmpty();
+                assertThat(reference.errors().get(0).message()).contains(errorMessage);
+                assertThat(reference.errors().get(0).context()).isNull();
+
+                assertSent(server.getMockWebServer(), postMethod, restApiPath
+                        + PegaApiMetadata.API_VERSION
+                        + nodesPath
+                        + forwardSlash + nodeId
+                        + agentsPath
+                        + forwardSlash + agentIdEncoded);
+            }
+        }
+    }
+
+    public void testReStartAgent() throws Exception {
+        try (final CloseableMockWebServer server = CloseableMockWebServer.start()) {
+            server.enqueue(new MockResponse().setBody(payloadFromResource("/agents-restart.json")).setResponseCode(200));
+
+            try (final PegaApi baseApi = api(server.getUrl("/"))) {
+                final AgentsApi api = baseApi.agentsApi();
+
+                final AgentsStatus reference = api.restart(nodeId, agentId);
+                assertThat(reference).isNotNull();
+                assertThat(reference.errors()).isEmpty();
+                assertThat(reference.items()).isNotEmpty();
+                assertThat(reference.items().get(0).message()).isEqualTo("Agent Successfully re-started");
+
+                assertSent(server.getMockWebServer(), putMethod, restApiPath
+                        + PegaApiMetadata.API_VERSION
+                        + nodesPath
+                        + forwardSlash + nodeId
+                        + agentsPath
+                        + forwardSlash + agentIdEncoded);
+            }
+        }
+    }
+
+    public void testReStartAgentOnError() throws Exception {
+        try (final CloseableMockWebServer server = CloseableMockWebServer.start()) {
+            server.enqueue(new MockResponse().setBody(payloadFromResource(errorsNodesFile)).setResponseCode(404));
+
+            try (final PegaApi baseApi = api(server.getUrl("/"))) {
+                final AgentsApi api = baseApi.agentsApi();
+
+                final AgentsStatus reference = api.restart(nodeId, agentId);
+                assertThat(reference).isNotNull();
+                assertThat(reference.items()).isEmpty();
+                assertThat(reference.errors()).isNotEmpty();
+                assertThat(reference.errors().get(0).message()).contains(errorMessage);
+                assertThat(reference.errors().get(0).context()).isNull();
+
+                assertSent(server.getMockWebServer(), putMethod, restApiPath
                         + PegaApiMetadata.API_VERSION
                         + nodesPath
                         + forwardSlash + nodeId

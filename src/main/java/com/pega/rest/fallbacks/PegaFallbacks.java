@@ -22,6 +22,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.pega.rest.PegaUtils;
+import com.pega.rest.domain.agents.AgentsStatus;
 import com.pega.rest.domain.agents.Agents;
 import com.pega.rest.domain.common.Error;
 import com.pega.rest.domain.nodes.Nodes;
@@ -97,6 +98,20 @@ public final class PegaFallbacks {
 
     public static Agents createAgentsOnError(final List<Error> errors) {
         return Agents.create(null, errors);
+    }
+
+    public static final class AgentsStatusOnError implements Fallback<Object> {
+        @Override
+        public Object createOrPropagate(final Throwable thr) {
+            if (checkNotNull(thr, "throwable") != null) {
+                return createAgentsStatusOnError(getErrors(thr.getMessage()));
+            }
+            throw propagate(thr);
+        }
+    }
+
+    public static AgentsStatus createAgentsStatusOnError(final List<Error> errors) {
+        return AgentsStatus.create(null, errors);
     }
 
     /**

@@ -1,0 +1,13 @@
+{
+    "data": {
+        "result": [
+            {
+                "agent_id": "PurgeExtraRecents|Pega-EndUserUI",
+                "message": "Agent Successfully started",
+                "nodeId": "d66395187ef68388902dd2641b3b5097"
+            }
+        ]
+    },
+    "servedBy": "d66395187ef68388902dd2641b3b5097",
+    "status": 200
+}

@@ -21,6 +21,7 @@ import com.pega.rest.BasePegaApiLiveTest;
 import com.pega.rest.TestUtilities;
 import com.pega.rest.domain.agents.Agent;
 import com.pega.rest.domain.agents.Agents;
+import com.pega.rest.domain.agents.AgentsStatus;
 import com.pega.rest.domain.nodes.ClusterMember;
 import com.pega.rest.domain.nodes.Nodes;
 import org.testng.annotations.BeforeClass;
@@ -73,9 +74,60 @@ public class AgentsApiLiveTest extends BasePegaApiLiveTest {
         assertThat(agent.agentInfo().instances()).isNotEmpty();
     }
 
+    @Test (dependsOnMethods = "testGetAgent")
+    public void testStopAgent() {
+        final AgentsStatus reference = api().stop(nodeId, agentId);
+        assertThat(reference).isNotNull();
+        assertThat(reference.errors()).isEmpty();
+        assertThat(reference.items()).isNotEmpty();
+        assertThat(reference.items().get(0).message()).isEqualTo("Agent Successfully terminated");
+    }
+
+    @Test (dependsOnMethods = "testStopAgent")
+    public void testStartAgent() {
+        final AgentsStatus reference = api().start(nodeId, agentId);
+        assertThat(reference).isNotNull();
+        assertThat(reference.errors()).isEmpty();
+        assertThat(reference.items()).isNotEmpty();
+        assertThat(reference.items().get(0).message()).isEqualTo("Agent Successfully started");
+    }
+
+    @Test (dependsOnMethods = "testStartAgent")
+    public void testReStartAgent() {
+        final AgentsStatus reference = api().restart(nodeId, agentId);
+        assertThat(reference).isNotNull();
+        assertThat(reference.errors()).isEmpty();
+        assertThat(reference.items()).isNotEmpty();
+        assertThat(reference.items().get(0).message()).isEqualTo("Agent Successfully re-started");
+    }
+
     @Test
     public void testGetAgentOnError() {
         final Agents reference = api().get(nodeId, TestUtilities.randomString());
+        assertThat(reference).isNotNull();
+        assertThat(reference.errors()).isNotEmpty();
+        assertThat(reference.items()).isEmpty();
+    }
+
+    @Test
+    public void testStopAgentOnError() {
+        final AgentsStatus reference = api().stop(nodeId, TestUtilities.randomString());
+        assertThat(reference).isNotNull();
+        assertThat(reference.errors()).isNotEmpty();
+        assertThat(reference.items()).isEmpty();
+    }
+
+    @Test
+    public void testStartAgentOnError() {
+        final AgentsStatus reference = api().start(nodeId, TestUtilities.randomString());
+        assertThat(reference).isNotNull();
+        assertThat(reference.errors()).isNotEmpty();
+        assertThat(reference.items()).isEmpty();
+    }
+
+    @Test
+    public void testReStartAgentOnError() {
+        final AgentsStatus reference = api().restart(nodeId, TestUtilities.randomString());
         assertThat(reference).isNotNull();
         assertThat(reference.errors()).isNotEmpty();
         assertThat(reference.items()).isEmpty();
