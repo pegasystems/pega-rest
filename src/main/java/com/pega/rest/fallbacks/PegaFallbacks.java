@@ -24,6 +24,7 @@ import com.google.gson.JsonObject;
 import com.pega.rest.PegaUtils;
 import com.pega.rest.domain.common.Error;
 import com.pega.rest.domain.nodes.Nodes;
+import com.pega.rest.domain.nodes.QuiesceStatus;
 import com.pega.rest.domain.nodes.SystemSettings;
 import org.jclouds.Fallback;
 
@@ -67,6 +68,20 @@ public final class PegaFallbacks {
 
     public static SystemSettings createSystemSettingsOnError(final List<Error> errors) {
         return SystemSettings.create(null, errors);
+    }
+
+    public static final class QuiesceStatusOnError implements Fallback<Object> {
+        @Override
+        public Object createOrPropagate(final Throwable thr) {
+            if (checkNotNull(thr, "throwable") != null) {
+                return createQuiesceStatusOnError(getErrors(thr.getMessage()));
+            }
+            throw propagate(thr);
+        }
+    }
+
+    public static QuiesceStatus createQuiesceStatusOnError(final List<Error> errors) {
+        return QuiesceStatus.create(null, null, errors);
     }
 
     /**

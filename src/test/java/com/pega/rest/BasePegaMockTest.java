@@ -53,6 +53,7 @@ public class BasePegaMockTest {
     private final JsonParser parser = new JsonParser();
 
     public static final String getMethod = "GET";
+    public static final String postMethod = "POST";
     public static final String restApiPath = "/api/";
     public static final String forwardSlash = "/";
 

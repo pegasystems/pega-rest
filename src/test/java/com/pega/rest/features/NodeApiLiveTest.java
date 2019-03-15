@@ -18,7 +18,9 @@
 package com.pega.rest.features;
 
 import com.pega.rest.BasePegaApiLiveTest;
+import com.pega.rest.domain.nodes.ClusterMember;
 import com.pega.rest.domain.nodes.Nodes;
+import com.pega.rest.domain.nodes.QuiesceStatus;
 import com.pega.rest.domain.nodes.SystemSettings;
 import org.testng.annotations.Test;
 
@@ -36,9 +38,13 @@ public class NodeApiLiveTest extends BasePegaApiLiveTest {
         assertThat(reference).isNotNull();
         assertThat(reference.errors()).isEmpty();
         assertThat(reference.results()).isNotEmpty();
-        assertThat(reference.results().get(0).runningState()).isEqualTo("Running");
+        final ClusterMember member = reference.results().get(0);
+        assertThat(member.nodeType().isEmpty()).isFalse();
+        if (member.runningState().equals("Quiesce Complete")) {
+            api().unquiesce(member.nodeId());
+        }
 
-        nodeId = reference.results().get(0).nodeId();
+        nodeId = member.nodeId();
     }
 
     @Test (dependsOnMethods = "testGetNodes")
@@ -49,7 +55,27 @@ public class NodeApiLiveTest extends BasePegaApiLiveTest {
         assertThat(reference.results()).isNotEmpty();
     }
 
-    @Test
+    @Test (dependsOnMethods = "testGetSettings")
+    public void testQuiesce() throws Exception {
+        final QuiesceStatus reference = api().quiesce(nodeId);
+        assertThat(reference).isNotNull();
+        assertThat(reference.errors()).isEmpty();
+        assertThat(reference.node()).isNotNull();
+        assertThat(reference.node().systemState()).contains("Quiesce Start");
+        Thread.sleep(3000);
+    }
+
+    @Test (dependsOnMethods = "testQuiesce")
+    public void testUnQuiesce() throws Exception {
+        final QuiesceStatus reference = api().unquiesce(nodeId);
+        assertThat(reference).isNotNull();
+        assertThat(reference.errors()).isEmpty();
+        assertThat(reference.node()).isNotNull();
+        assertThat(reference.node().systemState()).contains("Running");
+        Thread.sleep(3000);
+    }
+
+    @Test (dependsOnMethods = "testUnQuiesce")
     public void testGetSettingsOnError() {
         final SystemSettings reference = api().systemSettings(randomString());
         assertThat(reference).isNotNull();

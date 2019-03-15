@@ -22,6 +22,7 @@ import com.pega.rest.CloseableMockWebServer;
 import com.pega.rest.PegaApi;
 import com.pega.rest.PegaApiMetadata;
 import com.pega.rest.domain.nodes.Nodes;
+import com.pega.rest.domain.nodes.QuiesceStatus;
 import com.pega.rest.domain.nodes.SystemSettings;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import org.testng.annotations.Test;
@@ -34,6 +35,7 @@ public class NodeApiMockTest extends BasePegaMockTest {
     private static final String nodesPath = "/nodes";
     private static final String errorMessage = "You do not have enough privileges";
     private static final String nodeId = "9b2e3f1b6de727bf62c170617e14670b";
+    private static final String errorsNodesFile = "/errors-nodes.json";
 
     public void testGetNodes() throws Exception {
         try (final CloseableMockWebServer server = CloseableMockWebServer.start()) {
@@ -55,7 +57,7 @@ public class NodeApiMockTest extends BasePegaMockTest {
 
     public void testGetNodesOnError() throws Exception {
         try (final CloseableMockWebServer server = CloseableMockWebServer.start()) {
-            server.enqueue(new MockResponse().setBody(payloadFromResource("/errors-nodes.json")).setResponseCode(403));
+            server.enqueue(new MockResponse().setBody(payloadFromResource(errorsNodesFile)).setResponseCode(403));
 
             try (final PegaApi baseApi = api(server.getUrl("/"))) {
                 final NodeApi api = baseApi.nodeApi();
@@ -96,7 +98,7 @@ public class NodeApiMockTest extends BasePegaMockTest {
 
     public void testGetSettingsOnError() throws Exception {
         try (final CloseableMockWebServer server = CloseableMockWebServer.start()) {
-            server.enqueue(new MockResponse().setBody(payloadFromResource("/errors-nodes.json")).setResponseCode(404));
+            server.enqueue(new MockResponse().setBody(payloadFromResource(errorsNodesFile)).setResponseCode(404));
 
             try (final PegaApi baseApi = api(server.getUrl("/"))) {
                 final NodeApi api = baseApi.nodeApi();
@@ -113,6 +115,96 @@ public class NodeApiMockTest extends BasePegaMockTest {
                         + nodesPath
                         + forwardSlash + nodeId
                         + "/settings/system");
+            }
+        }
+    }
+
+    public void testQuiesce() throws Exception {
+        try (final CloseableMockWebServer server = CloseableMockWebServer.start()) {
+            server.enqueue(new MockResponse().setBody(payloadFromResource("/nodes-quiesce.json")).setResponseCode(200));
+
+            try (final PegaApi baseApi = api(server.getUrl("/"))) {
+                final NodeApi api = baseApi.nodeApi();
+
+                final QuiesceStatus reference = api.quiesce(nodeId);
+                assertThat(reference).isNotNull();
+                assertThat(reference.errors()).isEmpty();
+                assertThat(reference.node()).isNotNull();
+                assertThat(reference.node().systemState()).isEqualTo("Quiesce Start");
+
+                assertSent(server.getMockWebServer(), postMethod, restApiPath
+                        + PegaApiMetadata.API_VERSION
+                        + nodesPath
+                        + forwardSlash + nodeId
+                        + "/quiesce");
+            }
+        }
+    }
+
+    public void testQuiesceOnError() throws Exception {
+        try (final CloseableMockWebServer server = CloseableMockWebServer.start()) {
+            server.enqueue(new MockResponse().setBody(payloadFromResource(errorsNodesFile)).setResponseCode(404));
+
+            try (final PegaApi baseApi = api(server.getUrl("/"))) {
+                final NodeApi api = baseApi.nodeApi();
+
+                final QuiesceStatus reference = api.quiesce(nodeId);
+                assertThat(reference).isNotNull();
+                assertThat(reference.errors()).isNotEmpty();
+                assertThat(reference.node()).isNull();
+                assertThat(reference.errors().get(0).message()).contains(errorMessage);
+                assertThat(reference.errors().get(0).context()).isNull();
+
+                assertSent(server.getMockWebServer(), postMethod, restApiPath
+                        + PegaApiMetadata.API_VERSION
+                        + nodesPath
+                        + forwardSlash + nodeId
+                        + "/quiesce");
+            }
+        }
+    }
+
+    public void testUnQuiesce() throws Exception {
+        try (final CloseableMockWebServer server = CloseableMockWebServer.start()) {
+            server.enqueue(new MockResponse().setBody(payloadFromResource("/nodes-unquiesce.json")).setResponseCode(200));
+
+            try (final PegaApi baseApi = api(server.getUrl("/"))) {
+                final NodeApi api = baseApi.nodeApi();
+
+                final QuiesceStatus reference = api.unquiesce(nodeId);
+                assertThat(reference).isNotNull();
+                assertThat(reference.errors()).isEmpty();
+                assertThat(reference.node()).isNotNull();
+                assertThat(reference.node().systemState()).isEqualTo("Running");
+
+                assertSent(server.getMockWebServer(), postMethod, restApiPath
+                        + PegaApiMetadata.API_VERSION
+                        + nodesPath
+                        + forwardSlash + nodeId
+                        + "/unquiesce");
+            }
+        }
+    }
+
+    public void testUnQuiesceOnError() throws Exception {
+        try (final CloseableMockWebServer server = CloseableMockWebServer.start()) {
+            server.enqueue(new MockResponse().setBody(payloadFromResource(errorsNodesFile)).setResponseCode(404));
+
+            try (final PegaApi baseApi = api(server.getUrl("/"))) {
+                final NodeApi api = baseApi.nodeApi();
+
+                final QuiesceStatus reference = api.unquiesce(nodeId);
+                assertThat(reference).isNotNull();
+                assertThat(reference.errors()).isNotEmpty();
+                assertThat(reference.node()).isNull();
+                assertThat(reference.errors().get(0).message()).contains(errorMessage);
+                assertThat(reference.errors().get(0).context()).isNull();
+
+                assertSent(server.getMockWebServer(), postMethod, restApiPath
+                        + PegaApiMetadata.API_VERSION
+                        + nodesPath
+                        + forwardSlash + nodeId
+                        + "/unquiesce");
             }
         }
     }
