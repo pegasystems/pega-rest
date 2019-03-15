@@ -11,4 +11,6 @@
 * ADDED: `AgentsApi` gained endpoint `stop`
 * ADDED: `AgentsApi` gained endpoint `start`
 * ADDED: `AgentsApi` gained endpoint `restart`
-
+* ADDED: Initial creation of `ReportsApi`
+* ADDED: `ReportsApi` gained endpoint `databases`
+* ADDED: `ReportsApi` gained endpoint `tables`
