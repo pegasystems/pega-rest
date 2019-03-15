@@ -41,7 +41,7 @@ public class NodesApiMockTest extends BasePegaMockTest {
             try (final PegaApi baseApi = api(server.getUrl("/"))) {
                 final NodesApi api = baseApi.nodesApi();
 
-                final Nodes reference = api.nodes();
+                final Nodes reference = api.list();
                 assertThat(reference).isNotNull();
                 assertThat(reference.errors()).isEmpty();
                 assertThat(reference.items()).isNotEmpty();
@@ -59,7 +59,7 @@ public class NodesApiMockTest extends BasePegaMockTest {
             try (final PegaApi baseApi = api(server.getUrl("/"))) {
                 final NodesApi api = baseApi.nodesApi();
 
-                final Nodes reference = api.nodes();
+                final Nodes reference = api.list();
                 assertThat(reference).isNotNull();
                 assertThat(reference.items()).isEmpty();
                 assertThat(reference.errors()).isNotEmpty();

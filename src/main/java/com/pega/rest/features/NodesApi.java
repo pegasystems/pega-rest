@@ -48,7 +48,7 @@ public interface NodesApi {
     @Consumes(MediaType.APPLICATION_JSON)
     @Fallback(PegaFallbacks.NodesOnError.class)
     @GET
-    Nodes nodes();
+    Nodes list();
 
     @Named("node:settings")
     @Path("/{nodeID}/settings/system")

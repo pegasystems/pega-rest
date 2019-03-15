@@ -38,12 +38,21 @@ import javax.ws.rs.core.MediaType;
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 public interface AgentsApi {
 
-    @Named("agents:agents")
+    @Named("agents:list")
     @Path("/{nodeID}/agents")
     @SelectJson("data")
     @Consumes(MediaType.APPLICATION_JSON)
     @Fallback(PegaFallbacks.AgentsOnError.class)
     @GET
-    Agents agents(@PathParam("nodeID") String nodeID);
+    Agents list(@PathParam("nodeID") String nodeID);
+
+    @Named("agents:get")
+    @Path("/{nodeID}/agents/{agentID}")
+    @SelectJson("data")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Fallback(PegaFallbacks.AgentsOnError.class)
+    @GET
+    Agents get(@PathParam("nodeID") String nodeID,
+               @PathParam("agentID") String agentID);
 }
 

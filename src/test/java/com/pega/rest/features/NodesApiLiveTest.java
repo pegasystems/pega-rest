@@ -18,7 +18,6 @@
 package com.pega.rest.features;
 
 import com.pega.rest.BasePegaApiLiveTest;
-import com.pega.rest.domain.agents.Agents;
 import com.pega.rest.domain.nodes.ClusterMember;
 import com.pega.rest.domain.nodes.Nodes;
 import com.pega.rest.domain.nodes.QuiesceStatus;
@@ -35,7 +34,7 @@ public class NodesApiLiveTest extends BasePegaApiLiveTest {
 
     @Test
     public void testGetNodes() {
-        final Nodes reference = api().nodes();
+        final Nodes reference = api().list();
         assertThat(reference).isNotNull();
         assertThat(reference.errors()).isEmpty();
         assertThat(reference.items()).isNotEmpty();

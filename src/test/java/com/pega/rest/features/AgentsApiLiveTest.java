@@ -18,15 +18,14 @@
 package com.pega.rest.features;
 
 import com.pega.rest.BasePegaApiLiveTest;
+import com.pega.rest.TestUtilities;
 import com.pega.rest.domain.agents.Agent;
 import com.pega.rest.domain.agents.Agents;
 import com.pega.rest.domain.nodes.ClusterMember;
 import com.pega.rest.domain.nodes.Nodes;
-import com.pega.rest.domain.nodes.QuiesceStatus;
-import com.pega.rest.domain.nodes.SystemSettings;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static com.pega.rest.TestUtilities.randomString;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Test(groups = "live", testName = "AgentsApiLiveTest", singleThreaded = true)
@@ -35,9 +34,9 @@ public class AgentsApiLiveTest extends BasePegaApiLiveTest {
     public String nodeId;
     public String agentId;
 
-    @Test
-    public void testGetNodes() {
-        final Nodes reference = api.nodesApi().nodes();
+    @BeforeClass
+    public void testListNodes() {
+        final Nodes reference = api.nodesApi().list();
         assertThat(reference).isNotNull();
         assertThat(reference.errors()).isEmpty();
         assertThat(reference.items()).isNotEmpty();
@@ -50,9 +49,9 @@ public class AgentsApiLiveTest extends BasePegaApiLiveTest {
         nodeId = member.nodeId();
     }
 
-    @Test (dependsOnMethods = "testGetNodes")
-    public void testGetAgents() {
-        final Agents reference = api().agents(nodeId);
+    @Test
+    public void testListAgents() {
+        final Agents reference = api().list(nodeId);
         assertThat(reference).isNotNull();
         assertThat(reference.errors()).isEmpty();
         assertThat(reference.items()).isNotEmpty();
@@ -61,6 +60,25 @@ public class AgentsApiLiveTest extends BasePegaApiLiveTest {
         assertThat(agent.agentInfo().instances()).isNotEmpty();
 
         agentId = agent.agentInfo().agentId();
+    }
+
+    @Test (dependsOnMethods = "testListAgents")
+    public void testGetAgent() {
+        final Agents reference = api().get(nodeId, agentId);
+        assertThat(reference).isNotNull();
+        assertThat(reference.errors()).isEmpty();
+        assertThat(reference.items()).isNotEmpty();
+
+        final Agent agent = reference.items().get(0);
+        assertThat(agent.agentInfo().instances()).isNotEmpty();
+    }
+
+    @Test
+    public void testGetAgentOnError() {
+        final Agents reference = api().get(nodeId, TestUtilities.randomString());
+        assertThat(reference).isNotNull();
+        assertThat(reference.errors()).isNotEmpty();
+        assertThat(reference.items()).isEmpty();
     }
 
     private AgentsApi api() {
