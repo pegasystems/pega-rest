@@ -1,0 +1,5 @@
+Database,Product Name,Product Version,Driver Name,Driver Version,Driver Major Version,Driver Minor Version,Stores Identifiers in Upper Case?
+pegarules,PostgreSQL,9.4.9,PostgreSQL JDBC Driver,42.2.5,42,2,false
+pegadatareporting,PostgreSQL,9.4.9,PostgreSQL JDBC Driver,42.2.5,42,2,false
+customerdata,PostgreSQL,9.4.9,PostgreSQL JDBC Driver,42.2.5,42,2,false
+pegadata,PostgreSQL,9.4.9,PostgreSQL JDBC Driver,42.2.5,42,2,false

@@ -15,23 +15,25 @@
  * limitations under the License.
  */
 
-package com.pega.rest;
+package com.pega.rest.domain.reports;
 
-import java.io.Closeable;
+import com.google.auto.value.AutoValue;
+import com.pega.rest.PegaUtils;
+import com.pega.rest.domain.common.Error;
+import com.pega.rest.domain.common.ErrorsHolder;
+import com.pega.rest.domain.common.Items;
+import org.jclouds.json.SerializedNames;
 
-import com.pega.rest.features.AgentsApi;
-import com.pega.rest.features.NodesApi;
-import com.pega.rest.features.ReportsApi;
-import org.jclouds.rest.annotations.Delegate;
+import java.util.List;
 
-public interface PegaApi extends Closeable {
+@AutoValue
+public abstract class Databases implements Items<Database>, ErrorsHolder {
 
-    @Delegate
-    AgentsApi agentsApi();
+    @SerializedNames({ "databases", "error" })
+    public static Databases create(final List<Database> databases,
+                                   final List<Error> errors) {
 
-    @Delegate
-    NodesApi nodesApi();
-
-    @Delegate
-    ReportsApi reportsApi();
+        return new AutoValue_Databases(PegaUtils.nullToEmpty(databases),
+            PegaUtils.nullToEmpty(errors));
+    }
 }

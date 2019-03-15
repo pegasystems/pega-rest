@@ -31,11 +31,13 @@ import static com.pega.rest.PegaConstants.TOKEN_SYSTEM_PROPERTY;
 
 import com.google.common.base.Throwables;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -46,6 +48,8 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.Scanner;
+
 import org.jclouds.javax.annotation.Nullable;
 
 /**
@@ -57,6 +61,9 @@ public class PegaUtils {
     // global gson parser object
     public static final Gson GSON_PARSER = new Gson();
     public static final JsonParser JSON_PARSER = new JsonParser();
+
+    private static final char DEFAULT_SEPARATOR = ',';
+    private static final char DEFAULT_QUOTE = '"';
 
     /**
      * Convert passed Iterable into an ImmutableList.
@@ -286,6 +293,121 @@ public class PegaUtils {
                 }
             }
         }
+    }
+
+    /**
+     * Parse the content of a CSV file into a list of list-strings.
+     *
+     * @param csvContent csv file content to parse.
+     * @return list of list-strings representing the CSV file content.
+     */
+    public static List<List<String>> parseCSV(final String csvContent) {
+
+        final List<List<String>> parsedLines = Lists.newArrayList();
+        try (final Scanner scanner = new Scanner(csvContent)) {
+            boolean columnRow = true;
+            while (scanner.hasNext()) {
+                if (columnRow) {
+                    scanner.nextLine();
+                    columnRow = false;
+                    continue;
+                } else {
+                    final List<String> parsedLine = parseLine(scanner.nextLine());
+                    parsedLines.add(parsedLine);
+                }
+            }
+        }
+
+        return parsedLines;
+    }
+
+    private static List<String> parseLine(final String cvsLine) {
+        return parseLine(cvsLine, DEFAULT_SEPARATOR, DEFAULT_QUOTE);
+    }
+
+    private static List<String> parseLine(final String cvsLine,
+                                          char separators,
+                                          char customQuote) {
+
+        final List<String> result = new ArrayList<>();
+
+        //if empty, return!
+        if (cvsLine == null || cvsLine.isEmpty()) {
+            return result;
+        }
+
+        if (customQuote == ' ') {
+            customQuote = DEFAULT_QUOTE;
+        }
+
+        if (separators == ' ') {
+            separators = DEFAULT_SEPARATOR;
+        }
+
+        StringBuffer curVal = new StringBuffer();
+        boolean inQuotes = false;
+        boolean startCollectChar = false;
+        boolean doubleQuotesInColumn = false;
+
+        final char[] chars = cvsLine.toCharArray();
+
+        for (final char ch : chars) {
+
+            if (inQuotes) {
+                startCollectChar = true;
+                if (ch == customQuote) {
+                    inQuotes = false;
+                    doubleQuotesInColumn = false;
+                } else {
+
+                    //Fixed : allow "" in custom quote enclosed
+                    if (ch == '\"') {
+                        if (!doubleQuotesInColumn) {
+                            curVal.append(ch);
+                            doubleQuotesInColumn = true;
+                        }
+                    } else {
+                        curVal.append(ch);
+                    }
+                }
+            } else {
+                if (ch == customQuote) {
+
+                    inQuotes = true;
+
+                    //Fixed : allow "" in empty quote enclosed
+                    if (chars[0] != '"' && customQuote == '\"') {
+                        curVal.append('"');
+                    }
+
+                    //double quotes in column will hit this!
+                    if (startCollectChar) {
+                        curVal.append('"');
+                    }
+
+                } else if (ch == separators) {
+
+                    result.add(curVal.toString());
+
+                    curVal = new StringBuffer(); //NOPMD
+                    startCollectChar = false;
+
+                } else if (ch == '\r') {
+                    //ignore LF characters
+                    continue;
+                } else if (ch == '\n') {
+                    //the end, break!
+                    break;
+                } else {
+                    curVal.append(ch);
+                }
+            }
+
+        }
+
+        result.add(curVal.toString());
+
+        return result;
     }
 
     protected PegaUtils() {

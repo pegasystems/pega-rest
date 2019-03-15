@@ -28,6 +28,7 @@ import com.pega.rest.domain.common.Error;
 import com.pega.rest.domain.nodes.Nodes;
 import com.pega.rest.domain.nodes.QuiesceStatus;
 import com.pega.rest.domain.nodes.SystemSettings;
+import com.pega.rest.domain.reports.Databases;
 import org.jclouds.Fallback;
 
 import java.util.Iterator;
@@ -112,6 +113,20 @@ public final class PegaFallbacks {
 
     public static AgentsStatus createAgentsStatusOnError(final List<Error> errors) {
         return AgentsStatus.create(null, errors);
+    }
+
+    public static final class DatabasesOnError implements Fallback<Object> {
+        @Override
+        public Object createOrPropagate(final Throwable thr) {
+            if (checkNotNull(thr, "throwable") != null) {
+                return createDatabasesOnError(getErrors(thr.getMessage()));
+            }
+            throw propagate(thr);
+        }
+    }
+
+    public static Databases createDatabasesOnError(final List<Error> errors) {
+        return Databases.create(null, errors);
     }
 
     /**
