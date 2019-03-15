@@ -1,0 +1,27 @@
+{
+    "data": {
+        "result": [
+            {
+                "cluster_members": [
+                    {
+                        "node_type": "Universal",
+                        "running_state": "Running",
+                        "starttime": "2018-04-19T13:55:29.741Z",
+                        "metrics": {
+                            "requestors": "83",
+                            "timeouts": "0",
+                            "users": "1",
+                            "agents": "59"
+                        },
+                        "last_heartbeat": "2018-04-19T14:51:21.409Z",
+                        "applicable_node_types": "Search,WebUser,BIX,BackgroundProcessing,Universal,Custom1,Custom2,Custom3,Custom4,Custom5,DDS,ADM,Batch,RealTime,RTDG,Stream",
+                        "nodeId": "d1b31bb3bc0301cf75042e146a2d5479",
+                        "host_name": "hostname"
+                    }
+                ]
+            }
+        ]
+    },
+    "status": 200,
+    "servedBy": "d1b31bb3bc0301cf75042e146a2d5479"
+}

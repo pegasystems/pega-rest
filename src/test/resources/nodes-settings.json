@@ -1,0 +1,18 @@
+{
+    "status": 200,
+    "data": {
+        "result": [
+            {
+                "nodeID": "9b2e3f1b6de727bf62c170617e14670b",
+                "configurationSettings": [
+                    {
+                        "source": "prconfig",
+                        "name": "agent/enable",
+                        "value": "false"
+                    }
+                ]
+            }
+        ]
+    },
+    "servedBy": "9b2e3f1b6de727bf62c170617e14670b"
+}

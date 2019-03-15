@@ -1,0 +1,140 @@
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:3.1.1'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.artifactory'
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'checkstyle'
+apply plugin: 'jacoco'
+apply plugin: 'eclipse'
+apply plugin: 'pmd'
+
+apply from: "$rootDir/gradle/additional-artifacts.gradle"
+apply from: "$rootDir/gradle/dependencies.gradle"
+apply from: "$rootDir/gradle/documentation.gradle"
+apply from: "$rootDir/gradle/publishing.gradle"
+// apply from: "$rootDir/gradle/release.gradle"
+
+repositories {
+    jcenter()
+    mavenCentral()
+}
+
+dependencies {
+    ext.jcloudsVersion = '2.1.1'
+    ext.autoValueVersion = '1.6.2'
+
+    compile ("org.apache.jclouds:jclouds-core:${jcloudsVersion}") 
+    compile ('com.google.auto.service:auto-service:1.0-rc3')
+    compile ("com.google.auto.value:auto-value-annotations:${autoValueVersion}")
+
+    compileOnly ("com.google.auto.value:auto-value:${autoValueVersion}")
+
+    testCompile ("org.apache.jclouds:jclouds-core:${jcloudsVersion}:tests")
+    testCompile ("org.apache.jclouds.driver:jclouds-slf4j:${jcloudsVersion}") 
+    testCompile ('org.testng:testng:6.11') 
+    testCompile ('org.assertj:assertj-core:3.8.0') 
+    testCompile ('com.squareup.okhttp:mockwebserver:2.7.5') 
+    testCompile ('ch.qos.logback:logback-core:1.2.3') 
+    testCompile ('ch.qos.logback:logback-classic:1.2.3')
+    testCompile ('commons-io:commons-io:2.6')
+}
+
+ext.compatibilityVersion = '1.8'
+sourceCompatibility = compatibilityVersion
+targetCompatibility = compatibilityVersion
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'Pega REST client',
+                   'Implementation-Version': version,
+                   'Built-By': System.getProperty('user.name'),
+                   'Built-Date': new Date(),
+                   'Built-JDK': System.getProperty('java.version'),
+                   'Built-Gradle': gradle.gradleVersion
+    }
+}
+
+checkstyle {
+    toolVersion = "6.13"
+}
+
+pmd {
+    ruleSetConfig = resources.text.fromFile(rootProject.file('config/pmd/pmd.xml'))
+    consoleOutput = true
+    ignoreFailures = false
+    ruleSets = []
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+}
+
+tasks.withType(Pmd) {
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs += ['-Xlint:-options']
+}
+
+task mockTest(type: Test) {
+    useTestNG() 
+    include '**/**MockTest.class'
+    maxParallelForks = 2
+    testLogging {
+        showStandardStreams = true
+        events 'started', 'passed', 'failed'
+    }
+}
+
+task integTest(type: Test) {
+    doFirst {
+        def integProjectDir = project.file("${buildDir}/integ-projects")
+        if (!integProjectDir.exists()) {
+            if (!integProjectDir.mkdirs()) {
+                throw new RuntimeException("Failed to create integ-project directory @ ${integProjectDir.path}")
+            }
+        }
+    }
+    useTestNG() 
+    include '**/**LiveTest.class'
+    testLogging {
+        showStandardStreams = true
+        events 'started', 'passed', 'failed'
+    }
+    def authentication = [:]
+    def possibleAuth = project.findProperty('testPegaRestCredentials')
+    if (possibleAuth) {
+        authentication['test.pega.rest.credentials'] = possibleAuth
+    } else {
+        possibleAuth = project.findProperty('testPegaRestToken')
+        if (possibleAuth) {
+            authentication['test.pega.rest.token'] = possibleAuth
+        } else {
+            logger.quiet 'No authentication parameters found. Assuming anonymous...'
+        }
+    }
+
+    // property 'test.pega.endpoint' needs to be
+    // hard-coded in for jclouds test framework
+    systemProperties = ["test.pega.endpoint" : "${testPegaRestEndpoint}",
+                        "test.pega.basedir" : "${buildDir}/integ-projects"] << authentication
+}
+
