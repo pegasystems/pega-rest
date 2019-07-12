@@ -1,6 +1,5 @@
 
 [![Build Status](https://travis-ci.org/pegasystems/pega-rest.svg?branch=master)](https://travis-ci.org/pegasystems/pega-rest)
-[![codecov](https://codecov.io/gh/pegasystems/pega-rest/branch/master/graph/badge.svg)](https://codecov.io/gh/pegasystems/pega-rest)
 [![Download](https://api.bintray.com/packages/pegasystems/java-libraries/pega-rest/images/download.svg) ](https://bintray.com/pegasystems/java-libraries/pega-rest/_latestVersion)
 [![Stack Overflow](https://img.shields.io/badge/stack%20overflow-pega&#8211;rest-4183C4.svg)](https://stackoverflow.com/questions/tagged/pega+rest)
 
